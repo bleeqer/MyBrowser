@@ -9,6 +9,9 @@ include_directories(/opt/homebrew/include)
 # 1) Find GLFW (assumes you installed via system package or Homebrew)
 find_package(GLFW3 REQUIRED)
 
+file(GLOB BROWSER_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+add_library(myBrowser ${BROWSER_SOURCES})
+
 # 2) Add the ImGui source files to a library target
 add_library(imgui
     # Core ImGui
@@ -42,6 +45,7 @@ if(APPLE)
     # On macOS, you might need "-framework Cocoa -framework OpenGL" etc. 
     target_link_libraries(MyBrowser PRIVATE
         imgui
+        myBrowser
         glfw
         OpenGL::GL
     )
@@ -49,6 +53,7 @@ elseif(WIN32)
     # On Windows, link opengl32.lib, GDI32, etc. if needed
     target_link_libraries(MyBrowser PRIVATE
         imgui
+        myBrowser
         glfw
         OpenGL::GL
     )
@@ -56,6 +61,7 @@ else()
     # On Linux
     target_link_libraries(MyBrowser PRIVATE
         imgui
+        myBrowser
         glfw
         OpenGL::GL
     )

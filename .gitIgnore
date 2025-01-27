@@ -1,88 +1,61 @@
-###############################################################################
-# General OS & Editor Files
-###############################################################################
-# macOS
-.DS_Store
 
-# Windows
-Thumbs.db
-*.exe
-*.lnk
-*.obj
-*.pdb
-*.user
-*.suo
-*.sln
+# Build directories
+/build/
+/out/
+/bin/
+/obj/
 
-# Linux
-*~
-
-# Visual Studio Code
-.vscode/
-.history/
-.code-workspace
-
-# JetBrains IDEs (CLion, etc.)
-.idea/
+# IDE-specific files
 *.iml
+.idea/
+*.suo
+*.user
+*.vcxproj*
+*.ncb
+*.sdf
+*.opensdf
 
-###############################################################################
-# CMake / Build Artifacts
-###############################################################################
-# Build directories (common pattern: out-of-source build in 'build/' or 'bin/')
-build/
-bin/
-out/
+# OS-specific files
+.DS_Store
+Thumbs.db
 
-# Intermediate files, object files, libraries
-*.o
-*.obj
-*.so
-*.dll
-*.dylib
+# Temporary files
+*.tmp
+*.log
+*.bak
+*.swp
+
+# Libraries
 *.lib
 *.a
-*.la
+*.dll
+*.so
+*.dylib
 
-# CMake cache, backup, and generated files
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.bz2
+*.7z
+
+# CMake-specific files
 CMakeCache.txt
 CMakeFiles/
-cmake_install.cmake
-Makefile
 *.cmake
+cmake_install.cmake
 
-# Ninja files
-build.ninja
-rules.ninja
+# Dependency directories
+/deps/
+/external/
 
-###############################################################################
-# SDL & ImGui (Third Party)
-###############################################################################
-# If you vendor SDL or ImGui as a Git submodule, you typically keep the source.
-# But you might still want to ignore their build artifacts if you compile them
-# in-place:
-third_party/imgui/examples/example_*/cmake-build-*/
-third_party/imgui/backends/CMakeFiles/
-
-# For SDL3, any build artifacts if building in their folder:
-third_party/sdl3/build/
-third_party/sdl3/CMakeFiles/
-
-###############################################################################
-# Logs, Temp, & Misc
-###############################################################################
-*.log
-*.temp
-*.tmp
-*.swp
-*.swo
-*.bak
-*.orig
-*.patch
-
-###############################################################################
-# Other
-###############################################################################
-# If you generate documentation locally (e.g., via Doxygen), ignore it:
-docs/html/
-docs/latex/
+# Version control
+!.gitignore  # Do not ignore the .gitignore file itself
