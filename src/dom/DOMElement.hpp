@@ -4,9 +4,13 @@
 #include <map>
 #include <vector>
 
+class DOMDocument;
+
 class DOMElement {
 public:
     explicit DOMElement(const std::string& tagName);
+
+    DOMDocument* getDocument() const;
 
     const std::string& getTagName() const;
 
@@ -17,6 +21,7 @@ public:
     const std::vector<DOMElement*>& getChildren() const;
 
 private:
+    DOMDocument* m_document;
     std::string m_tagName;
     std::map<std::string, std::string> m_attributes;
     std::vector<DOMElement*> m_children;

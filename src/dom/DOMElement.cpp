@@ -6,6 +6,11 @@ DOMElement::DOMElement(const std::string& tagName)
 {
 }
 
+DOMDocument *DOMElement::getDocument() const {
+    return m_document;
+}
+
+
 const std::string& DOMElement::getTagName() const {
     return m_tagName;
 }

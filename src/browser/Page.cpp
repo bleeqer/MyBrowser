@@ -12,11 +12,9 @@ Page::~Page()
     std::cout << "Destroying Page" << std::endl;
 }
 
-void Page::loadHTML(const std::string& html)
+void Page::loadHTML(HTMLParser& parser, const std::string& html)
 {
-    std::cout << "Loading HTML: " << html << std::endl;
-    // HTMLParser parser;
-    // m_dom = parser.parse(html); 
+    std::cout << "Loading HTML into Page" << std::endl;
 }
 
 void Page::update()

@@ -35,8 +35,6 @@ int main()
 
     Page myPage;
     
-    myPage.loadHTML("<html><body><h1>Hello, world!</h1><p>This is a test page.</p></body></html>");
-
     // Main loop
     while (!glfwWindowShouldClose(window)) 
     {

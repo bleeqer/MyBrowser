@@ -1,13 +1,14 @@
 #pragma once
 #include <string>
 #include "../dom/DOMDocument.hpp"
+#include "../parser/HTMLParser.hpp"
 
 class Page {
 public:
     Page();
     ~Page();
 
-    void loadHTML(const std::string& html);
+    void loadHTML(HTMLParser& parser, const std::string& html);
 
     void update();
 
