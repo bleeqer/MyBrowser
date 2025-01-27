@@ -12,7 +12,7 @@ void LayoutEngine::layout(DOMDocument& doc)
 {
 }
 
-LayoutTree& LayoutEngine::getLayoutTree()
-{
-    return m_layoutTree;
-}
+//LayoutTree& LayoutEngine::getLayoutTree()
+//{
+//    return m_layoutTree;
+//}

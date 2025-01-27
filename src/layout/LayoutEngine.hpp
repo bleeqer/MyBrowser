@@ -1,6 +1,6 @@
 #pragma once
-#include "../dom/DOMDocument.h"
-#include "LayoutTree.h"  // If you have a LayoutTree class
+#include "../dom/DOMDocument.hpp"
+//#include "LayoutTree.hpp"  // If you have a LayoutTree class
 
 class LayoutEngine {
 public:
@@ -10,8 +10,8 @@ public:
     // Build/update a layout tree from a DOM
     void layout(DOMDocument& doc);
 
-    LayoutTree& getLayoutTree();
+//    LayoutTree& getLayoutTree();
 
 private:
-    LayoutTree m_layoutTree;
+//    LayoutTree m_layoutTree;
 };
