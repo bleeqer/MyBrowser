@@ -35,8 +35,8 @@ void Browser::loadURL(const std::string &url)
     m_currentPage = std::make_shared<Page>();
 
     // 3. Parse HTML into the Page’s DOM
-    HTMLParser parser;
-    m_currentPage->loadHTML(parser, html);
+    // HTMLParser parser;
+    // m_currentPage->loadHTML(parser, html);
 
     // Log info
     std::cout << "Loaded URL: " << url << "\n";

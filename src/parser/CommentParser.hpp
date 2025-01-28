@@ -1,13 +1,13 @@
 #pragma once
+
 #include "ParserContext.hpp"
-#include <vector>
 #include "Token.hpp"
 
-class HTMLLexer {
+class CommentParser {
 public:
-    HTMLLexer(ParserContext& ctx);
+    CommentParser(ParserContext& ctx);
 
-    std::vector<Token> tokenize();
+    Token parseComment();
 
 private:
     ParserContext& m_ctx;

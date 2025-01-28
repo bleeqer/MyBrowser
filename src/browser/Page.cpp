@@ -14,9 +14,9 @@ Page::~Page()
 
 void Page::loadHTML(HTMLParser &parser, const std::string &html)
 {
-    DOMDocument doc = parser.parse(html);
+    // DOMDocument doc = parser.parse(html);
 
-    m_document = doc;
+    // m_document = doc;
 
     std::cout << "Page loaded HTML of length: " << html.size() << "\n";
 }

@@ -1,100 +1,112 @@
 #include "HTMLParser.hpp"
-#include <stdexcept>
-#include <iostream>
+#include <iostream> // for logging
 
-DOMDocument HTMLParser::parse(const std::string &html)
+HTMLParser::HTMLParser(const std::vector<Token>& tokens)
+    : m_tokens(tokens)
 {
-    // 1) Lex
-    HTMLLexer lexer(html);
-    m_tokens = lexer.tokenize();
-    m_index = 0;
-
-    // 2) Build a DOMDocument
-    DOMDocument doc;
-    // Possibly create a root <html> if you want a known root
-
-    // 3) Recursively parse elements/text into doc's root
-    // For a simple approach, parse everything as children of a single root
-    DOMElement *root = doc.createElement("html");
-    doc.setRootElement(root);
-
-    parseNodes(root);
-
-    return doc;
+    m_document = new DOMNode("document");
 }
 
-void HTMLParser::parseNodes(DOMElement *parent)
+DOMNode* HTMLParser::parse()
 {
-    while (currentToken().type != TokenType::EndOfFile)
-    {
-        TokenType t = currentToken().type;
-
-        if (t == TokenType::OpenTag)
-        {
-            parseElement(parent);
-        }
-        else if (t == TokenType::SelfClosingTag)
-        {
-        }
-        else if (t == TokenType::CloseTag)
-        {
-            // warning
-            std::cerr << "Unexpected close tag: " << currentToken().value << "\n";
-            std::cerr << "Auto-inserting open tag\n";
-            // TODO:: auto-insert open tag if missing
-            return;
-        }
-        else if (t == TokenType::Text)
-        {
-        }
-        else
-        {
+    while (!isAtEnd()) {
+        const Token& t = currentToken();
+        if (t.type == TokenType::Doctype) {
             advance();
         }
+        else if (t.type == TokenType::Comment) {
+            advance();
+        }
+        else {
+            DOMNode* child = parseNodes();
+            if (child) {
+                m_document->appendChild(child);
+            }
+        }
+    }
+
+    return m_document;
+}
+
+DOMNode* HTMLParser::parseNodes()
+{
+    const Token& t = currentToken();
+    if (t.type == TokenType::OpenTag) {
+        return parseElement();
+    }
+    else if (t.type == TokenType::SelfClosingTag) {
+        DOMNode* node = new DOMNode(t.value);
+        advance(); // consume this token
+        return node;
+    }
+    else if (t.type == TokenType::Text) {
+        DOMNode* textNode = new DOMNode("#text");
+        textNode->setAttribute("value", t.value);
+        advance();
+        return textNode;
+    }
+    else if (t.type == TokenType::CloseTag) {
+        std::cerr << "Unexpected close tag " << t.value << "\n";
+        advance();
+        return nullptr;
+    }
+    else {
+        advance();
+        return nullptr;
     }
 }
 
-void HTMLParser::parseElement(DOMElement *parent)
+DOMNode* HTMLParser::parseElement()
 {
-    // Expect an OpenTag token
-    Token openTag = currentToken();
-    std::string tagName = openTag.value;
-    advance(); // consume the open tag
+    const Token& t = currentToken();
+    std::string tagName = t.value; // e.g. 'div', 'span'
+    DOMNode* element = new DOMNode(tagName);
 
-    // Create the element
-    DOMElement *element = parent->getDocument()->createElement(tagName);
-    parent->appendChild(element);
-
-    // parse attributes if you had them in tokens (omitted in this minimal example)
-
-    // Now parse children until we see a close tag for this element
-    parseNodes(element);
-
-    // We expect a close tag with the same name
-    if (currentToken().type == TokenType::CloseTag)
-    {
-        if (currentToken().value != tagName)
-        {
-            // mismatch? error or ignore
-            std::cerr << "Mismatched close tag for " << tagName << "\n";
-        }
-        advance(); // consume the close
+    for (auto &attr : t.attributes) {
+        element->setAttribute(attr.first, attr.second);
     }
+
+    advance(); // consume the OpenTag token
+
+    while (!isAtEnd()) {
+        const Token& nextT = currentToken();
+        if (nextT.type == TokenType::CloseTag && nextT.value == tagName) {
+            advance(); // consume the close tag
+            break;
+        }
+        else if (nextT.type == TokenType::CloseTag) {
+            std::cerr << "Mismatched close tag for " << tagName << ", got: " << nextT.value << "\n";
+            advance();
+        }
+        else {
+            // parse child node
+            DOMNode* child = parseNodes();
+            if (child) {
+                element->appendChild(child);
+            }
+        }
+    }
+
+    return element;
+}
+
+bool HTMLParser::isAtEnd() const
+{
+    return m_index >= m_tokens.size();
+}
+
+const Token& HTMLParser::currentToken() const
+{
+    if (isAtEnd()) {
+        static Token eofToken { TokenType::EndOfFile, "" };
+        return eofToken;
+    }
+    return m_tokens[m_index];
 }
 
 void HTMLParser::advance()
 {
-    if (m_index < m_tokens.size())
-    {
+    if (!isAtEnd()) {
         m_index++;
     }
-}
-
-Token HTMLParser::currentToken() const
-{
-    if (m_index >= m_tokens.size())
-    {
-        return {TokenType::EndOfFile, ""};
-    }
-    return m_tokens[m_index];
 }

@@ -1,27 +1,26 @@
+// HTMLParser.hpp
 #pragma once
+#include <vector>
+#include "Token.hpp"
+#include "DOMNode.hpp"
 
-#include "../dom/DOMDocument.hpp"
-#include "HTMLLexer.hpp"
-
-class HTMLParser
-{
+class HTMLParser {
 public:
-    /**
-     * @brief Parse an HTML string into a DOMDocument.
-     */
-    DOMDocument parse(const std::string &html);
+    HTMLParser(const std::vector<Token>& tokens);
+
+    DOMNode* parse();
 
 private:
-    // Utility to read next token, keep an index, etc.
+    // For iteration
+    const std::vector<Token>& m_tokens;
+    size_t m_index = 0;
+
+    DOMNode* m_document = nullptr;
+
+    DOMNode* parseNodes();
+    DOMNode* parseElement();
+
+    bool isAtEnd() const;
+    const Token& currentToken() const;
     void advance();
-
-    Token currentToken() const;
-
-    void parseNodes(DOMElement *parent);
-
-    void parseElement(DOMElement *parent);
-
-    HTMLLexer *m_lexer = nullptr;
-    std::vector<Token> m_tokens;
-    size_t m_index = 0; // current token index
 };

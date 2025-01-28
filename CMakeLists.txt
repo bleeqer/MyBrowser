@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 
 project(MyBrowser)
 include(FetchContent)
-enable_testing()
 
 # 1) Use C++17
 set(CMAKE_CXX_STANDARD 17)
@@ -85,28 +84,24 @@ if(APPLE)
     endif()
 endif()
 
-# 8) (Optional) Add a test executable for Google Test
-#    Create a separate .cpp (e.g. tests/test_lexer.cpp) that uses GTest.
-add_executable(MyBrowserTests
-        tests/src/parser/test_HTMLLexer.cpp  # for example
-        # list other test files here
+file(GLOB_RECURSE TEST_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/**/*.cpp"
 )
 
-# Link your libraries and GTest
+add_executable(MyBrowserTests
+        ${TEST_SOURCES}
+)
+
+# Link your browser library and GTest
 target_link_libraries(MyBrowserTests PRIVATE
-        browser
+        browser       # your app/library code
         imgui
-        GTest::gtest
-        GTest::gtest_main
+        GTest::gtest_main   # gtest_main provides main() entry for testing
 )
 
 # If your tests need the same include dirs:
 target_include_directories(MyBrowserTests PRIVATE
-#        ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui/backends
+        # Possibly also: ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-
-# Add a test named "MyBrowserUnitTests" that runs the test executable
-add_test(NAME MyBrowserUnitTests COMMAND MyBrowserTests)
-
