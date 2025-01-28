@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(MyBrowser)
-
+include(FetchContent)
 enable_testing()
 
 # 1) Use C++17
@@ -10,9 +10,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 2) Find libraries
 find_package(OpenGL REQUIRED)        # e.g. -lGL on Linux, or frameworks on macOS
+message(STATUS "OpenGL::GL = ${OPENGL_gl_LIBRARY}")
+
 find_package(GLFW3 REQUIRED)         # Provided by Homebrew/system package
+message(STATUS "GLFW3::GLFW = ${GLFW_LIBRARIES}")
+
 find_package(CURL REQUIRED)          # For HTTPClient
-find_package(GTest REQUIRED)         # For unit tests (optional)
+message(STATUS "CURL::libcurl = ${CURL_LIBRARIES}")
+
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.15.0.zip
+)
+FetchContent_MakeAvailable(googletest)
 
 # If needed, add any global include paths:
 include_directories(/opt/homebrew/include)
@@ -92,7 +102,7 @@ target_link_libraries(MyBrowserTests PRIVATE
 
 # If your tests need the same include dirs:
 target_include_directories(MyBrowserTests PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+#        ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui/backends
 )

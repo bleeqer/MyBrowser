@@ -1,24 +1,35 @@
 #pragma once
 #include <memory>
 #include <string>
-#include "Page.hpp"
+#include <vector>
 
-// Simple Browser interface that can load a URL into a Page.
-class Browser {
+class Page; // forward declare
+
+class Browser
+{
 public:
     Browser();
+
     ~Browser();
 
-    // Load a URL: fetch, parse, etc.
-    void loadURL(const std::string& url);
+    void loadURL(const std::string &url);
 
-    // Per-frame or periodic updates (scripts, timers, etc.).
     void update();
 
-    // Get the current Page object (might be null if not loaded yet).
+    // Navigation history:
+    void goBack();
+
+    void goForward();
+
+    void refresh();
+
+    // If you need direct access to the current Page object:
     std::shared_ptr<Page> currentPage() const;
 
 private:
-    // The active page (in a real browser, you might have multiple tabs).
     std::shared_ptr<Page> m_currentPage;
+
+    // Simple URL history
+    std::vector<std::string> m_history;
+    int m_historyIndex = -1; // which element of m_history is current
 };

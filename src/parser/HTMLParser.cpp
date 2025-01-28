@@ -1,195 +1,100 @@
-#include "HTMLLexer.hpp"
-#include <cctype>
+#include "HTMLParser.hpp"
 #include <stdexcept>
+#include <iostream>
 
-// Constructor
-HTMLLexer::HTMLLexer(const std::string& html)
-    : m_html(html)
+DOMDocument HTMLParser::parse(const std::string &html)
 {
+    // 1) Lex
+    HTMLLexer lexer(html);
+    m_tokens = lexer.tokenize();
+    m_index = 0;
+
+    // 2) Build a DOMDocument
+    DOMDocument doc;
+    // Possibly create a root <html> if you want a known root
+
+    // 3) Recursively parse elements/text into doc's root
+    // For a simple approach, parse everything as children of a single root
+    DOMElement *root = doc.createElement("html");
+    doc.setRootElement(root);
+
+    parseNodes(root);
+
+    return doc;
 }
 
-std::vector<Token> HTMLLexer::tokenize()
+void HTMLParser::parseNodes(DOMElement *parent)
 {
-    std::vector<Token> tokens;
+    while (currentToken().type != TokenType::EndOfFile)
+    {
+        TokenType t = currentToken().type;
 
-    while (!isAtEnd()) {
-        char c = peek();
-
-        if (c == '<') {
-            // Look ahead to see if it's a comment, doctype, close tag, etc.
-            if (startsWith("<!--")) {
-                tokens.push_back(parseComment());
-            }
-            else if (startsWith("<!DOCTYPE")) {
-                tokens.push_back(parseDoctype());
-            }
-            else if (startsWith("</")) {
-                // It's a close tag or possibly </...>
-                tokens.push_back(parseTag()); // parseTag handles isClosing if we see '/'
-            }
-            else {
-                // Otherwise, assume it's an open tag
-                tokens.push_back(parseTag());
-            }
-        } else {
-            // parse text until next '<'
-            tokens.push_back(parseText());
+        if (t == TokenType::OpenTag)
+        {
+            parseElement(parent);
+        }
+        else if (t == TokenType::SelfClosingTag)
+        {
+        }
+        else if (t == TokenType::CloseTag)
+        {
+            // warning
+            std::cerr << "Unexpected close tag: " << currentToken().value << "\n";
+            std::cerr << "Auto-inserting open tag\n";
+            // TODO:: auto-insert open tag if missing
+            return;
+        }
+        else if (t == TokenType::Text)
+        {
+        }
+        else
+        {
+            advance();
         }
     }
-
-    // EndOfFile token at the end
-    tokens.push_back({ TokenType::EndOfFile, "" });
-    return tokens;
 }
 
-//-------------------
-// Parse a TEXT token
-//-------------------
-Token HTMLLexer::parseText()
+void HTMLParser::parseElement(DOMElement *parent)
 {
-    size_t start = m_pos;
-    // Read until we hit '<' or the end
-    while (!isAtEnd() && peek() != '<') {
-        get();
-    }
-    // substring from [start, m_pos)
-    std::string text = m_html.substr(start, m_pos - start);
-    return { TokenType::Text, text };
-}
+    // Expect an OpenTag token
+    Token openTag = currentToken();
+    std::string tagName = openTag.value;
+    advance(); // consume the open tag
 
-//------------------------
-// Parse <tag> or </tag>
-//------------------------
-Token HTMLLexer::parseTag()
-{
-    // Consume the '<'
-    get();
+    // Create the element
+    DOMElement *element = parent->getDocument()->createElement(tagName);
+    parent->appendChild(element);
 
-    bool isClosing = false;
-    if (!isAtEnd() && peek() == '/') {
-        isClosing = true;
-        get(); // consume '/'
-    }
+    // parse attributes if you had them in tokens (omitted in this minimal example)
 
-    // Read the tag name (letters, digits, underscores, etc.)
-    size_t start = m_pos;
-    while (!isAtEnd() && (std::isalnum(peek()) || peek() == '_' || peek() == '-')) {
-        get();
-    }
-    std::string tagName = m_html.substr(start, m_pos - start);
+    // Now parse children until we see a close tag for this element
+    parseNodes(element);
 
-    // (Optional) skip whitespace, parse attributes, check for '/', etc.
-    // For brevity, we just skip until '>'
-    while (!isAtEnd() && peek() != '>') {
-        get();
-    }
-
-    // If we're not at the end, consume '>'
-    if (!isAtEnd()) {
-        get();
-    }
-
-    if (isClosing) {
-        // e.g. </div>
-        return { TokenType::CloseTag, tagName };
-    }
-    else {
-        // e.g. <div>
-        // Could also check if it's self-closing (<br />) but skipping that
-        return { TokenType::OpenTag, tagName };
-    }
-}
-
-//--------------------
-// Parse <!-- comment -->
-//--------------------
-Token HTMLLexer::parseComment()
-{
-    // We already know startsWith("<!--"), so consume those 4 chars
-    // actually we consume '<', '!', '-', '-'
-    // or just do a loop of get() 4 times
-    for (int i = 0; i < 4; i++) {
-        get();
-    }
-    // Now read until we see '-->'
-    size_t start = m_pos;
-    while (!isAtEnd()) {
-        // If we find "-->", break
-        if (startsWith("-->")) {
-            break;
+    // We expect a close tag with the same name
+    if (currentToken().type == TokenType::CloseTag)
+    {
+        if (currentToken().value != tagName)
+        {
+            // mismatch? error or ignore
+            std::cerr << "Mismatched close tag for " << tagName << "\n";
         }
-        get();
+        advance(); // consume the close
     }
-    // The comment text is from start to our current position
-    std::string commentText = m_html.substr(start, m_pos - start);
-
-    // If not at the end, consume the "-->"
-    if (!isAtEnd()) {
-        for (int i = 0; i < 3; i++) {
-            get(); // consume '-', '-', '>'
-        }
-    }
-
-    return { TokenType::Comment, commentText };
 }
 
-//-------------------------
-// Parse <!DOCTYPE ...>
-//-------------------------
-Token HTMLLexer::parseDoctype()
+void HTMLParser::advance()
 {
-    // We already know startsWith("<!DOCTYPE")
-    // Let's consume 9 characters: '<', '!', 'D', 'O', 'C', 'T', 'Y', 'P', 'E'
-    for (int i = 0; i < 9; i++) {
-        get();
+    if (m_index < m_tokens.size())
+    {
+        m_index++;
     }
-    // Read until '>' or end
-    size_t start = m_pos;
-    while (!isAtEnd() && peek() != '>') {
-        get();
+}
+
+Token HTMLParser::currentToken() const
+{
+    if (m_index >= m_tokens.size())
+    {
+        return {TokenType::EndOfFile, ""};
     }
-    std::string doctypeText = m_html.substr(start, m_pos - start);
-
-    if (!isAtEnd()) {
-        get(); // consume '>'
-    }
-
-    // doctypeText might contain ' html' or something like that
-    return { TokenType::Doctype, doctypeText };
-}
-
-//----------------------------------
-// Helpers to peek, get, and check
-//----------------------------------
-char HTMLLexer::peek() const
-{
-    if (m_pos >= m_html.size()) return '\0';
-    return m_html[m_pos];
-}
-
-char HTMLLexer::peekNext() const
-{
-    if ((m_pos + 1) >= m_html.size()) return '\0';
-    return m_html[m_pos + 1];
-}
-
-char HTMLLexer::get()
-{
-    if (m_pos >= m_html.size()) return '\0';
-    return m_html[m_pos++];
-}
-
-bool HTMLLexer::isAtEnd() const
-{
-    return m_pos >= m_html.size();
-}
-
-bool HTMLLexer::startsWith(const std::string& str) const
-{
-    // If there's not enough room left for 'str', return false
-    if (m_pos + str.size() > m_html.size()) {
-        return false;
-    }
-    // Compare substring
-    return (m_html.compare(m_pos, str.size(), str) == 0);
+    return m_tokens[m_index];
 }

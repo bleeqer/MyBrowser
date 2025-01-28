@@ -55,7 +55,13 @@ cmake_install.cmake
 
 # Dependency directories
 /deps/
+/_deps/
 /external/
 
 # Version control
 !.gitignore  # Do not ignore the .gitignore file itself
+
+Makefile
+
+MyBrowser
+MyBrowserTests

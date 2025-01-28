@@ -8,7 +8,7 @@ LayoutEngine::~LayoutEngine()
 {
 }
 
-void LayoutEngine::layout(DOMDocument& doc)
+void LayoutEngine::layout(DOMDocument &doc)
 {
 }
 

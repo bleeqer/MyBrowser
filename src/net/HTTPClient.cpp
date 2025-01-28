@@ -4,25 +4,26 @@
 #include <iostream>
 
 // This callback is called by libcurl as it receives data.
-static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     // Cast user pointer to std::string
-    std::string* buffer = static_cast<std::string*>(userp);
+    std::string *buffer = static_cast<std::string *>(userp);
     // Calculate actual size
     size_t totalSize = size * nmemb;
     // Append to the string’s buffer
-    buffer->append(static_cast<char*>(contents), totalSize);
+    buffer->append(static_cast<char *>(contents), totalSize);
     return totalSize; // Return the number of bytes we handled
 }
 
-std::string HTTPClient::get(const std::string& url)
+std::string HTTPClient::get(const std::string &url)
 {
     // Initialize the output string
     std::string responseBody;
 
     // Initialize a CURL handle
-    CURL* curl = curl_easy_init();
-    if (!curl) {
+    CURL *curl = curl_easy_init();
+    if (!curl)
+    {
         std::cerr << "Failed to init CURL\n";
         return "";
     }
@@ -45,7 +46,8 @@ std::string HTTPClient::get(const std::string& url)
     // Optionally, check HTTP response code
     long httpCode = 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-    if (httpCode != 200) {
+    if (httpCode != 200)
+    {
         std::cerr << "HTTP status code: " << httpCode << "\n";
         // You might decide to return "" or partial content
     }

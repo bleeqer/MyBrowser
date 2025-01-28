@@ -1,6 +1,15 @@
 #pragma once
 
-#include <imgui.h>
-#include "../browser/Browser.hpp"
+class Browser; // forward-declare
 
-void drawAddressBar(Browser& browser);
+class BrowserUI
+{
+public:
+    // Called once per frame to render all UI panels/windows
+    void draw(Browser &browser);
+
+private:
+    void drawAddressBar(Browser &browser);
+
+    void drawToolbar(Browser &browser);
+};

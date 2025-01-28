@@ -3,17 +3,19 @@
 #include "../dom/DOMDocument.hpp"
 #include "../parser/HTMLParser.hpp"
 
-class Page {
+class Page
+{
 public:
     Page();
+
     ~Page();
 
-    void loadHTML(HTMLParser& parser, const std::string& html);
+    void loadHTML(HTMLParser &parser, const std::string &html);
 
     void update();
 
-    DOMDocument& getDocument();
+    DOMDocument &getDocument();
 
 private:
-    DOMDocument m_dom;
+    DOMDocument m_document;
 };

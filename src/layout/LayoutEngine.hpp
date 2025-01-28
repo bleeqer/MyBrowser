@@ -2,16 +2,18 @@
 #include "../dom/DOMDocument.hpp"
 //#include "LayoutTree.hpp"  // If you have a LayoutTree class
 
-class LayoutEngine {
+class LayoutEngine
+{
 public:
     LayoutEngine();
+
     ~LayoutEngine();
 
     // Build/update a layout tree from a DOM
-    void layout(DOMDocument& doc);
+    void layout(DOMDocument &doc);
 
-//    LayoutTree& getLayoutTree();
+    //    LayoutTree& getLayoutTree();
 
 private:
-//    LayoutTree m_layoutTree;
+    //    LayoutTree m_layoutTree;
 };
